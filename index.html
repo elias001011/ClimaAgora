@@ -192,6 +192,11 @@
         max-width: 90%;
       }
     }
+    @media (max-width: 600px) {
+      .ia-window {
+        max-width: 80%;
+      }
+    }
 
     /* Spinner integrado no container (dentro do container principal) */
     #loading {
@@ -281,10 +286,17 @@
       document.getElementById("loading").style.display = "none";
     }
 
-    // Posiciona a janela de Recomendações à direita do container principal em telas grandes
+    // Ajusta a janela de Recomendações conforme o tamanho da tela
     function positionIaWindow() {
       const iaWindow = document.getElementById("iaWindow");
-      if (window.innerWidth <= 800) return;
+      if (window.innerWidth <= 800) {
+        iaWindow.style.display = "block";
+        iaWindow.style.width = "90%";
+        // Remove qualquer posicionamento absoluto
+        iaWindow.style.top = "";
+        iaWindow.style.left = "";
+        return;
+      }
       const containerRect = document.getElementById("mainContainer").getBoundingClientRect();
       const iaRect = iaWindow.getBoundingClientRect();
       const top = containerRect.top + (containerRect.height - iaRect.height) / 2;
@@ -506,11 +518,7 @@
       document.getElementById("forecastContainer").style.display = "none";
       document.getElementById("mainContainer").style.display = "block";
       // Restaura a exibição da janela de recomendações
-      if (window.innerWidth > 800) {
-         positionIaWindow();
-      } else {
-         document.getElementById("iaWindow").style.display = "block";
-      }
+      positionIaWindow();
     });
   </script>
 </body>
