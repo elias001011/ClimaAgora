@@ -11,7 +11,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     /* Fundo inicial com degradê preto */
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -27,7 +26,6 @@
       justify-content: center;
       position: relative;
     }
-
     /* Overlay para contraste do conteúdo */
     .overlay {
       position: absolute;
@@ -38,29 +36,26 @@
       background: rgba(0, 0, 0, 0.5);
       z-index: 1;
     }
-
     /* Container principal e de previsão */
     .container {
       position: relative;
       z-index: 2;
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
-      padding: 2rem;
-      border-radius: 15px;
+      padding: 1rem; /* espaçamento reduzido */
+      border-radius: 8px; /* bordas menos arredondadas */
       width: 90%;
       max-width: 500px;
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3); /* sombra reduzida */
       transition: opacity 0.5s ease;
-      margin-bottom: 1rem;
+      margin-bottom: 0.2rem; /* margem inferior reduzida */
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
       text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
     }
-
     input {
       width: 100%;
       padding: 0.8rem;
@@ -77,7 +72,6 @@
       opacity: 0.8;
       text-align: center;
     }
-
     /* Botões padrão */
     button {
       width: 100%;
@@ -93,7 +87,6 @@
     button:hover {
       opacity: 0.9;
     }
-
     /* Botão Buscar Clima (laranja) */
     #getWeatherBtn {
       background-color: #e67e22;
@@ -101,7 +94,6 @@
     #getWeatherBtn:hover {
       background-color: #d35400;
     }
-
     /* Botões de opção (cidades) */
     #cityList {
       margin: 1rem 0;
@@ -122,7 +114,6 @@
       background-color: rgba(255, 255, 255, 0.3);
       border-color: rgba(255, 255, 255, 0.5);
     }
-
     /* Botão "Previsão para os próximos dias" */
     .rounded-button {
       width: 100%;
@@ -140,7 +131,6 @@
       background-color: rgba(255, 255, 255, 0.3);
       border-color: rgba(255, 255, 255, 0.5);
     }
-
     .weather-data h2 {
       font-size: 1.4rem;
       margin-bottom: 0.5rem;
@@ -153,7 +143,6 @@
       width: 100px;
       height: 100px;
     }
-
     /* Alinhamento horizontal da imagem e dados */
     .weather-info {
       display: flex;
@@ -164,14 +153,13 @@
     .weather-details {
       text-align: left;
     }
-
     /* Janela de Recomendações da Mini IA */
     .ia-window {
       position: absolute;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(5px);
       padding: 1rem;
-      border-radius: 10px;
+      border-radius: 8px;
       max-width: 300px;
       text-align: left;
       z-index: 3;
@@ -188,16 +176,16 @@
     @media (max-width: 800px) {
       .ia-window {
         position: static;
-        margin-top: 1rem;
+        margin-top: 0.2rem;
         max-width: 90%;
+        width: 90%;
       }
     }
     @media (max-width: 600px) {
       .ia-window {
-        max-width: 80%;
+        max-width: 90%;
       }
     }
-
     /* Spinner integrado no container (dentro do container principal) */
     #loading {
       display: none;
@@ -217,12 +205,13 @@
       0%   { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    /* Créditos (dentro do container principal) */
+    /* Créditos fora dos containers */
     .developer {
+      position: relative;
+      z-index: 3;
       font-size: 0.8rem;
       text-align: center;
-      margin-top: 1rem;
+      margin-top: 0.1rem; /* mais próximo do container */
       color: #fff;
     }
     .developer a {
@@ -234,7 +223,7 @@
 <body>
   <!-- Overlay -->
   <div class="overlay"></div>
-
+  
   <!-- Container principal -->
   <div class="container" id="mainContainer">
     <h1>Previsão do Tempo</h1>
@@ -253,46 +242,47 @@
     <div id="extraControls" style="display:none;">
       <button id="showForecastBtn" class="rounded-button">Previsão para os próximos dias -></button>
     </div>
-    <!-- Créditos (dentro do container principal) -->
-    <div class="developer">
-      desenvolvido por <a href="https://www.instagram.com/elias_jrnunes/" target="_blank">@elias_jrnunes</a>
-    </div>
   </div>
-
+  
   <!-- Janela de Recomendações da Mini IA -->
   <div class="ia-window" id="iaWindow">
     <h2>Recomendações:</h2>
     <p id="iaSuggestion"></p>
   </div>
-
+  
   <!-- Container de previsão (inicialmente oculto) -->
   <div class="container" id="forecastContainer" style="display:none;">
     <h1>Previsão para os próximos dias</h1>
     <div id="forecastData"></div>
     <button id="backFromForecastBtn" style="background-color: #e67e22; color: #fff; border: none; border-radius: 5px;">Voltar</button>
   </div>
-
+  
+  <!-- Créditos fora dos containers -->
+  <div class="developer">
+    desenvolvido por <a href="https://instagram.com/elias_jrnunes/" target="_blank">@elias_jrnunes</a>
+  </div>
+  
   <script>
     /* Chaves API */
     const weatherApiKey = "87b42475468c3ba9298cf245b2fa9379";
     const unsplashAccessKey = "dIwIQ9IGF5cuaH8vbtm0iX__aVh1_Pw7XboiHOM4HSc";
     let currentLat, currentLon;
     let forecastLoaded = false; // para exibir "Carregando..." apenas na primeira vez
-
+  
     function showLoading() {
       document.getElementById("loading").style.display = "block";
     }
     function hideLoading() {
       document.getElementById("loading").style.display = "none";
     }
-
+  
     // Ajusta a janela de Recomendações conforme o tamanho da tela
     function positionIaWindow() {
       const iaWindow = document.getElementById("iaWindow");
       if (window.innerWidth <= 800) {
         iaWindow.style.display = "block";
         iaWindow.style.width = "90%";
-        // Remove qualquer posicionamento absoluto
+        iaWindow.style.marginTop = "0.2rem";
         iaWindow.style.top = "";
         iaWindow.style.left = "";
         return;
@@ -305,7 +295,10 @@
       iaWindow.style.left = left + "px";
       iaWindow.style.display = "block";
     }
-
+  
+    // Atualiza o posicionamento da janela de Recomendações ao redimensionar a janela
+    window.addEventListener('resize', positionIaWindow);
+  
     // Gera recomendações com base no clima
     function getRecommendations(weatherDescription, temp, humidity) {
       let recommendations = [];
@@ -341,7 +334,7 @@
       }
       return recommendations.join(" ");
     }
-
+  
     // Busca clima atual via /data/2.5/weather
     function getWeatherByCoords(lat, lon, cityName, state, country) {
       showLoading();
@@ -395,7 +388,7 @@
           document.getElementById("iaWindow").style.display = "none";
         });
     }
-
+  
     // Evento "Buscar Clima"
     document.getElementById("getWeatherBtn").addEventListener("click", () => {
       const cityQuery = document.getElementById("cityInput").value.trim();
@@ -438,14 +431,14 @@
           document.getElementById("weatherData").innerHTML = "<p>Erro ao buscar a cidade.</p>";
         });
     });
-
+  
     // Função para selecionar cidade
     function selectCity(lat, lon, cityName, state, country) {
       document.getElementById("cityList").innerHTML = "";
       getWeatherByCoords(lat, lon, cityName, state, country);
     }
     window.selectCity = selectCity;
-
+  
     // Exibe previsão para os próximos dias via /data/2.5/forecast
     document.getElementById("showForecastBtn").addEventListener("click", () => {
       // Oculta a janela de recomendações
@@ -473,7 +466,7 @@
             dailyMap[dateTxt].icons.push(item.weather[0].icon);
             dailyMap[dateTxt].descriptions.push(item.weather[0].description);
           });
-          let daysArray = Object.keys(dailyMap).sort().slice(0, 4);
+          let daysArray = Object.keys(dailyMap).sort().slice(0, 5); // 5 dias
           let forecastHTML = "";
           daysArray.forEach(day => {
             const dayData = dailyMap[day];
@@ -512,7 +505,7 @@
           document.getElementById("showForecastBtn").innerText = "Previsão para os próximos dias ->";
         });
     });
-
+  
     // Botão "Voltar" da previsão
     document.getElementById("backFromForecastBtn").addEventListener("click", () => {
       document.getElementById("forecastContainer").style.display = "none";
