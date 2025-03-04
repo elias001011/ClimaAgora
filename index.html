@@ -11,6 +11,7 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     /* Fundo inicial com degradê preto */
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -19,7 +20,6 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      transition: background-image 0.5s ease-in-out, background 0.5s ease-in-out;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -27,6 +27,7 @@
       justify-content: center;
       position: relative;
     }
+
     /* Overlay para contraste do conteúdo */
     .overlay {
       position: absolute;
@@ -37,7 +38,8 @@
       background: rgba(0, 0, 0, 0.5);
       z-index: 1;
     }
-    /* Container principal com efeito glassmorphism */
+
+    /* Container principal e de previsão */
     .container {
       position: relative;
       z-index: 2;
@@ -49,12 +51,16 @@
       max-width: 500px;
       text-align: center;
       box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      transition: opacity 0.5s ease;
+      margin-bottom: 1rem;
     }
+
     h1 {
       font-size: 2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
     }
+
     input {
       width: 100%;
       padding: 0.8rem;
@@ -71,22 +77,32 @@
       opacity: 0.8;
       text-align: center;
     }
+
+    /* Botões padrão */
     button {
       width: 100%;
       padding: 0.8rem;
-      background-color: #e67e22;
       border: none;
       border-radius: 5px;
       font-size: 1rem;
       color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
       margin-bottom: 1rem;
     }
     button:hover {
+      opacity: 0.9;
+    }
+
+    /* Botão Buscar Clima (laranja) */
+    #getWeatherBtn {
+      background-color: #e67e22;
+    }
+    #getWeatherBtn:hover {
       background-color: #d35400;
     }
-    /* Estilo para a lista de cidades (botões de seleção) */
+
+    /* Botões de opção (cidades) */
     #cityList {
       margin: 1rem 0;
     }
@@ -106,8 +122,27 @@
       background-color: rgba(255, 255, 255, 0.3);
       border-color: rgba(255, 255, 255, 0.5);
     }
+
+    /* Botão "Previsão para os próximos dias" */
+    .rounded-button {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 0.3rem 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      font-size: 0.9rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .rounded-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
     .weather-data h2 {
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       margin-bottom: 0.5rem;
     }
     .weather-data p {
@@ -118,11 +153,21 @@
       width: 100px;
       height: 100px;
     }
+
+    /* Alinhamento horizontal da imagem e dados */
+    .weather-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .weather-details {
+      text-align: left;
+    }
+
     /* Janela de Recomendações da Mini IA */
     .ia-window {
-      position: fixed;
-      right: 20px;
-      top: 20px;
+      position: absolute;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(5px);
       padding: 1rem;
@@ -131,6 +176,7 @@
       text-align: left;
       z-index: 3;
       display: none;
+      transition: opacity 0.3s ease;
     }
     .ia-window h2 {
       font-size: 1.2rem;
@@ -139,23 +185,40 @@
     .ia-window p {
       font-size: 1rem;
     }
-    /* Responsividade: em telas de até 600px, a janela de Recomendações se posiciona no fluxo */
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
       .ia-window {
         position: static;
-        transform: none;
         margin-top: 1rem;
         max-width: 90%;
       }
     }
-    /* Rodapé com o crédito */
+
+    /* Spinner integrado no container (dentro do container principal) */
+    #loading {
+      display: none;
+      margin: 1rem auto;
+      text-align: center;
+    }
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Créditos (dentro do container principal) com a mesma cor dos demais textos */
     .developer {
       font-size: 0.8rem;
       text-align: center;
-      margin-top: 10px;
-      color: rgba(255, 255, 255, 0.7);
-      position: relative;
-      z-index: 4;
+      margin-top: 1rem;
+      color: #fff;
     }
     .developer a {
       text-decoration: underline;
@@ -164,40 +227,77 @@
   </style>
 </head>
 <body>
-  <!-- Overlay para contraste -->
+  <!-- Overlay -->
   <div class="overlay"></div>
-  
+
   <!-- Container principal -->
-  <div class="container">
+  <div class="container" id="mainContainer">
     <h1>Previsão do Tempo</h1>
+    <!-- Spinner integrado -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Carregando...</p>
+    </div>
     <input type="text" id="cityInput" placeholder="Digite o nome da cidade">
     <button id="getWeatherBtn">Buscar Clima</button>
-    <!-- Área para listagem de opções da cidade -->
+    <!-- Lista de cidades, se houver mais de um resultado -->
     <div id="cityList"></div>
-    <!-- Área para exibição dos dados do clima -->
+    <!-- Exibição do clima atual -->
     <div class="weather-data" id="weatherData"></div>
+    <!-- Botões extras -->
+    <div id="extraControls" style="display:none;">
+      <button id="showForecastBtn" class="rounded-button">Previsão para os próximos dias -></button>
+    </div>
+    <!-- Créditos (dentro do container principal) -->
+    <div class="developer">
+      desenvolvido por <a href="https://www.instagram.com/elias_jrnunes/" target="_blank">@elias_jrnunes</a>
+    </div>
   </div>
-  
-  <!-- Janela da Mini IA -->
+
+  <!-- Janela de Recomendações da Mini IA -->
   <div class="ia-window" id="iaWindow">
     <h2>Recomendações:</h2>
     <p id="iaSuggestion"></p>
   </div>
-  
-  <!-- Rodapé com o crédito -->
-  <div class="developer">
-    desenvolvido por <a href="https://instagram.com/elias_jrnunes/" target="_blank">@elias_jrnunes</a>
+
+  <!-- Container de previsão (inicialmente oculto) -->
+  <div class="container" id="forecastContainer" style="display:none;">
+    <h1>Previsão para os próximos dias</h1>
+    <div id="forecastData"></div>
+    <button id="backFromForecastBtn" style="background-color: #e67e22; color: #fff; border: none; border-radius: 5px;">Voltar</button>
   </div>
-  
+
   <script>
+    /* Chaves API */
     const weatherApiKey = "87b42475468c3ba9298cf245b2fa9379";
-    
-    // Função que retorna recomendações com base na descrição do clima, temperatura e umidade.
+    const unsplashAccessKey = "dIwIQ9IGF5cuaH8vbtm0iX__aVh1_Pw7XboiHOM4HSc";
+    let currentLat, currentLon;
+    let forecastLoaded = false; // para exibir "Carregando..." apenas na primeira vez
+
+    function showLoading() {
+      document.getElementById("loading").style.display = "block";
+    }
+    function hideLoading() {
+      document.getElementById("loading").style.display = "none";
+    }
+
+    // Posiciona a janela de Recomendações à direita do container principal em telas grandes
+    function positionIaWindow() {
+      const iaWindow = document.getElementById("iaWindow");
+      if (window.innerWidth <= 800) return;
+      const containerRect = document.getElementById("mainContainer").getBoundingClientRect();
+      const iaRect = iaWindow.getBoundingClientRect();
+      const top = containerRect.top + (containerRect.height - iaRect.height) / 2;
+      const left = containerRect.right + 40;
+      iaWindow.style.top = top + "px";
+      iaWindow.style.left = left + "px";
+      iaWindow.style.display = "block";
+    }
+
+    // Gera recomendações com base no clima
     function getRecommendations(weatherDescription, temp, humidity) {
       let recommendations = [];
       const desc = weatherDescription.toLowerCase();
-      
-      // Recomendações baseadas na descrição do tempo
       if (desc.includes("chuva")) {
         recommendations.push("A chuva é um convite para relaxar com um bom filme ou saborear uma bebida quente.");
       } else if (desc.includes("nublado") || desc.includes("encoberto")) {
@@ -213,8 +313,6 @@
       } else {
         recommendations.push("Independentemente do cenário, tire um tempo para desfrutar o momento.");
       }
-      
-      // Recomendações baseadas na temperatura
       if (temp >= 30) {
         recommendations.push("Com o calor intenso, mantenha-se bem hidratado e proteja-se do sol.");
       } else if (temp <= 10) {
@@ -222,8 +320,6 @@
       } else {
         recommendations.push("A temperatura está agradável para aproveitar bem o seu dia.");
       }
-      
-      // Recomendações baseadas na umidade
       if (humidity >= 80) {
         recommendations.push("A alta umidade pode deixar o ar mais pesado; hidrate-se regularmente.");
       } else if (humidity < 40) {
@@ -231,117 +327,182 @@
       } else {
         recommendations.push("A umidade está em um nível ideal para apreciar o clima.");
       }
-      
       return recommendations.join(" ");
     }
-    
-    // Função para buscar dados do clima usando latitude e longitude
+
+    // Busca clima atual via /data/2.5/weather
     function getWeatherByCoords(lat, lon, cityName, state, country) {
+      showLoading();
       const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric&lang=pt_br`;
       fetch(weatherUrl)
         .then(response => response.json())
         .then(data => {
+          hideLoading();
+          if (!data || !data.weather) throw new Error("Dados inválidos para o clima atual");
           const { main, weather } = data;
           const weatherDescription = weather[0].description;
           const iconCode = weather[0].icon;
           let fullCityName = cityName;
-          if (state) { fullCityName += ", " + state; }
-          if (country) { fullCityName += " (" + country + ")"; }
-          
-          // Arredonda a temperatura atual
+          if (state) fullCityName += ", " + state;
+          if (country) fullCityName += " (" + country + ")";
+          currentLat = lat;
+          currentLon = lon;
           const roundedTemp = Math.round(main.temp);
-          
+          const humidity = main.humidity;
           const weatherHTML = `
             <h2>${fullCityName}</h2>
-            <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${weatherDescription}">
-            <p><strong>Temperatura:</strong> ${roundedTemp}°C</p>
-            <p><strong>Umidade:</strong> ${main.humidity}%</p>
+            <div class="weather-info">
+              <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${weatherDescription}">
+              <div class="weather-details">
+                <p><strong>Temperatura:</strong> ${roundedTemp}°C</p>
+                <p><strong>Umidade:</strong> ${humidity}%</p>
+              </div>
+            </div>
           `;
           document.getElementById("weatherData").innerHTML = weatherHTML;
-          
-          // Atualiza a imagem de fundo via API Unsplash
+          document.getElementById("weatherData").style.display = "block";
+          document.getElementById("extraControls").style.display = "block";
           const unsplashQuery = `${cityName}, ${weatherDescription}`;
-          const unsplashAccessKey = "dIwIQ9IGF5cuaH8vbtm0iX__aVh1_Pw7XboiHOM4HSc";
           const unsplashUrl = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(unsplashQuery)}&orientation=landscape&client_id=${unsplashAccessKey}`;
           fetch(unsplashUrl)
-            .then(response => response.json())
+            .then(resp => resp.json())
             .then(unsplashData => {
               if (unsplashData.urls && unsplashData.urls.regular) {
                 document.body.style.backgroundImage = `url(${unsplashData.urls.regular})`;
-              } else {
-                console.error("Imagem não encontrada no Unsplash.");
               }
             })
-            .catch(error => {
-              console.error("Erro na requisição à API do Unsplash:", error);
-            });
-          
-          // Atualiza as recomendações da Mini IA
-          const recommendation = getRecommendations(weatherDescription, main.temp, main.humidity);
+            .catch(() => { console.log("Erro na requisição ao Unsplash."); });
+          const recommendation = getRecommendations(weatherDescription, main.temp, humidity);
           document.getElementById("iaSuggestion").innerText = recommendation;
-          const iaWindow = document.getElementById("iaWindow");
-          iaWindow.style.display = "block";
-          
-          // Alinha verticalmente a janela de Recomendações com o container do clima
-          const containerRect = document.querySelector('.container').getBoundingClientRect();
-          iaWindow.style.top = containerRect.top + "px";
+          positionIaWindow();
         })
         .catch(error => {
-          console.error("Erro ao buscar os dados do clima:", error);
+          hideLoading();
+          console.error("Erro ao buscar clima atual:", error);
           document.getElementById("weatherData").innerHTML = "<p>Não foi possível recuperar os dados do clima.</p>";
           document.getElementById("iaWindow").style.display = "none";
         });
     }
-    
-    // Evento ao clicar em "Buscar Clima"
-    document.getElementById("getWeatherBtn").addEventListener("click", function() {
+
+    // Evento "Buscar Clima"
+    document.getElementById("getWeatherBtn").addEventListener("click", () => {
       const cityQuery = document.getElementById("cityInput").value.trim();
       if (!cityQuery) {
         alert("Por favor, digite o nome de uma cidade!");
         return;
       }
-      
-      // Limpa resultados anteriores
       document.getElementById("weatherData").innerHTML = "";
       document.getElementById("cityList").innerHTML = "";
-      
-      // Busca via API de geocodificação (até 5 resultados)
+      document.getElementById("extraControls").style.display = "none";
+      showLoading();
       const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityQuery)}&limit=5&appid=${weatherApiKey}`;
       fetch(geoUrl)
         .then(response => response.json())
         .then(data => {
-          if (data.length === 0) {
+          hideLoading();
+          if (!data || data.length === 0) {
             document.getElementById("weatherData").innerHTML = "<p>Cidade não encontrada!</p>";
           } else if (data.length === 1) {
             const cityObj = data[0];
             getWeatherByCoords(cityObj.lat, cityObj.lon, cityObj.name, cityObj.state, cityObj.country);
           } else {
-            // Se houver mais de uma opção, exibe os botões para seleção
             let cityListHTML = "<p>Selecione a cidade correta:</p>";
             data.forEach(cityObj => {
               let displayName = cityObj.name;
-              if (cityObj.state) { 
-                displayName += ", " + cityObj.state;
-              }
-              if (cityObj.country) {
-                displayName += " (" + cityObj.country + ")";
-              }
-              cityListHTML += `<button class="city-option" onclick="selectCity(${cityObj.lat}, ${cityObj.lon}, '${cityObj.name.replace(/'/g, "\\'")}', '${cityObj.state ? cityObj.state.replace(/'/g, "\\'") : ""}', '${cityObj.country ? cityObj.country.replace(/'/g, "\\'") : ""}')">${displayName}</button>`;
+              if (cityObj.state) displayName += ", " + cityObj.state;
+              if (cityObj.country) displayName += " (" + cityObj.country + ")";
+              cityListHTML += `
+                <button class="city-option" onclick="selectCity(${cityObj.lat}, ${cityObj.lon}, '${cityObj.name.replace(/'/g, "\\'")}', '${cityObj.state ? cityObj.state.replace(/'/g, "\\'") : ""}', '${cityObj.country ? cityObj.country.replace(/'/g, "\\'") : ""}')">
+                  ${displayName}
+                </button>
+              `;
             });
             document.getElementById("cityList").innerHTML = cityListHTML;
           }
         })
         .catch(error => {
+          hideLoading();
           console.error("Erro ao buscar a cidade:", error);
           document.getElementById("weatherData").innerHTML = "<p>Erro ao buscar a cidade.</p>";
         });
     });
-    
-    // Função para tratar a seleção da cidade
+
+    // Função para selecionar cidade
     function selectCity(lat, lon, cityName, state, country) {
       document.getElementById("cityList").innerHTML = "";
       getWeatherByCoords(lat, lon, cityName, state, country);
     }
+    window.selectCity = selectCity;
+
+    // Exibe previsão para os próximos dias via /data/2.5/forecast
+    document.getElementById("showForecastBtn").addEventListener("click", () => {
+      if (!forecastLoaded) {
+        document.getElementById("showForecastBtn").innerText = "Carregando...";
+      }
+      document.getElementById("mainContainer").style.display = "none";
+      document.getElementById("forecastContainer").style.display = "block";
+      showLoading();
+      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${currentLat}&lon=${currentLon}&appid=${weatherApiKey}&units=metric&lang=pt_br`;
+      fetch(forecastUrl)
+        .then(response => response.json())
+        .then(data => {
+          hideLoading();
+          if (!data || !data.list) throw new Error("Dados de previsão não disponíveis");
+          const dailyMap = {};
+          data.list.forEach(item => {
+            const dateTxt = item.dt_txt.split(" ")[0];
+            if (!dailyMap[dateTxt]) {
+              dailyMap[dateTxt] = { temps: [], icons: [], descriptions: [] };
+            }
+            dailyMap[dateTxt].temps.push(item.main.temp);
+            dailyMap[dateTxt].icons.push(item.weather[0].icon);
+            dailyMap[dateTxt].descriptions.push(item.weather[0].description);
+          });
+          let daysArray = Object.keys(dailyMap).sort().slice(0, 4);
+          let forecastHTML = "";
+          daysArray.forEach(day => {
+            const dayData = dailyMap[day];
+            const minTemp = Math.round(Math.min(...dayData.temps));
+            const maxTemp = Math.round(Math.max(...dayData.temps));
+            const icon = dayData.icons[0];
+            const description = dayData.descriptions[0];
+            const [year, month, dayNum] = day.split("-");
+            const formattedDate = `${dayNum}/${month}/${year}`;
+            const dateObj = new Date(+year, +month - 1, +dayNum);
+            let dayOfWeek = dateObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+            dayOfWeek = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+            forecastHTML += `
+              <div style="margin: 1rem 0; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px;">
+                <p><strong>${formattedDate} - ${dayOfWeek}</strong></p>
+                <div class="weather-info" style="justify-content: center;">
+                  <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${description}">
+                  <p>${minTemp}°C ~ ${maxTemp}°C<br>${description}</p>
+                </div>
+              </div>
+            `;
+          });
+          if (!forecastHTML) {
+            forecastHTML = "<p>Não foi possível encontrar previsões para os próximos dias.</p>";
+          }
+          document.getElementById("forecastData").innerHTML = forecastHTML;
+          if (!forecastLoaded) {
+            document.getElementById("showForecastBtn").innerText = "Previsão para os próximos dias ->";
+            forecastLoaded = true;
+          }
+        })
+        .catch(error => {
+          hideLoading();
+          console.error("Erro ao buscar a previsão:", error);
+          document.getElementById("forecastData").innerHTML = "<p>Não foi possível recuperar a previsão.</p>";
+          document.getElementById("showForecastBtn").innerText = "Previsão para os próximos dias ->";
+        });
+    });
+
+    // Botão "Voltar" da previsão
+    document.getElementById("backFromForecastBtn").addEventListener("click", () => {
+      document.getElementById("forecastContainer").style.display = "none";
+      document.getElementById("mainContainer").style.display = "block";
+    });
   </script>
 </body>
 </html>
