@@ -213,7 +213,7 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Créditos (dentro do container principal) com a mesma cor dos demais textos */
+    /* Créditos (dentro do container principal) */
     .developer {
       font-size: 0.8rem;
       text-align: center;
@@ -436,6 +436,9 @@
 
     // Exibe previsão para os próximos dias via /data/2.5/forecast
     document.getElementById("showForecastBtn").addEventListener("click", () => {
+      // Oculta a janela de recomendações
+      document.getElementById("iaWindow").style.display = "none";
+      
       if (!forecastLoaded) {
         document.getElementById("showForecastBtn").innerText = "Carregando...";
       }
@@ -502,6 +505,12 @@
     document.getElementById("backFromForecastBtn").addEventListener("click", () => {
       document.getElementById("forecastContainer").style.display = "none";
       document.getElementById("mainContainer").style.display = "block";
+      // Restaura a exibição da janela de recomendações
+      if (window.innerWidth > 800) {
+         positionIaWindow();
+      } else {
+         document.getElementById("iaWindow").style.display = "block";
+      }
     });
   </script>
 </body>
