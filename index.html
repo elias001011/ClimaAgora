@@ -86,6 +86,26 @@
     button:hover {
       background-color: #d35400;
     }
+    /* Estilo para a lista de cidades (botões de seleção) */
+    #cityList {
+      margin: 1rem 0;
+    }
+    .city-option {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.3rem 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .city-option:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
     .weather-data h2 {
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
@@ -98,13 +118,11 @@
       width: 100px;
       height: 100px;
     }
-    /* Janela de instruções da IA:
-       Fixa no lado direito, com 20px de margem da borda; 
-       o top é ajustado dinamicamente para alinhar com a janela do clima. */
+    /* Janela de Recomendações da Mini IA */
     .ia-window {
       position: fixed;
       right: 20px;
-      top: 20px; /* Valor padrão; atualizado via JavaScript */
+      top: 20px;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(5px);
       padding: 1rem;
@@ -112,7 +130,7 @@
       max-width: 300px;
       text-align: left;
       z-index: 3;
-      display: none; /* Oculta até serem obtidos os dados do clima */
+      display: none;
     }
     .ia-window h2 {
       font-size: 1.2rem;
@@ -121,7 +139,7 @@
     .ia-window p {
       font-size: 1rem;
     }
-    /* Responsividade: em telas de até 600px, a janela de IA é posicionada no fluxo */
+    /* Responsividade: em telas de até 600px, a janela de Recomendações se posiciona no fluxo */
     @media (max-width: 600px) {
       .ia-window {
         position: static;
@@ -136,6 +154,12 @@
       text-align: center;
       margin-top: 10px;
       color: rgba(255, 255, 255, 0.7);
+      position: relative;
+      z-index: 4;
+    }
+    .developer a {
+      text-decoration: underline;
+      color: #fff;
     }
   </style>
 </head>
@@ -143,107 +167,107 @@
   <!-- Overlay para contraste -->
   <div class="overlay"></div>
   
-  <!-- Container do clima -->
+  <!-- Container principal -->
   <div class="container">
     <h1>Previsão do Tempo</h1>
     <input type="text" id="cityInput" placeholder="Digite o nome da cidade">
     <button id="getWeatherBtn">Buscar Clima</button>
+    <!-- Área para listagem de opções da cidade -->
+    <div id="cityList"></div>
+    <!-- Área para exibição dos dados do clima -->
     <div class="weather-data" id="weatherData"></div>
   </div>
   
-  <!-- Janela de instruções da IA -->
+  <!-- Janela da Mini IA -->
   <div class="ia-window" id="iaWindow">
-    <h2>Instruções da IA:</h2>
+    <h2>Recomendações:</h2>
     <p id="iaSuggestion"></p>
   </div>
-
-  <!-- Rodapé com o crédito de desenvolvimento -->
-  <div class="developer">desenvolvido por @elias_jrnunes</div>
+  
+  <!-- Rodapé com o crédito -->
+  <div class="developer">
+    desenvolvido por <a href="https://instagram.com/elias_jrnunes/" target="_blank">@elias_jrnunes</a>
+  </div>
   
   <script>
-    // Função que retorna múltiplas sugestões com base na descrição do clima.
-    function getSuggestions(weatherDescription) {
+    const weatherApiKey = "87b42475468c3ba9298cf245b2fa9379";
+    
+    // Função que retorna recomendações com base na descrição do clima, temperatura e umidade.
+    function getRecommendations(weatherDescription, temp, humidity) {
+      let recommendations = [];
       const desc = weatherDescription.toLowerCase();
-      let suggestions = [];
       
+      // Recomendações baseadas na descrição do tempo
       if (desc.includes("chuva")) {
-        suggestions.push("Dias chuvosos são perfeitos para um filme ou uma boa leitura com uma bebida quente.");
-        suggestions.push("Aproveite para relaxar e curtir o som da chuva.");
-      }
-      if (desc.includes("nublado") || desc.includes("encoberto")) {
-        suggestions.push("O céu nublado é ótimo para um café aconchegante em boa companhia.");
-        suggestions.push("Experimente visitar um museu ou uma galeria de arte.");
-      }
-      if (desc.includes("ensolarado") || desc.includes("limpo") || desc.includes("céu claro")) {
-        suggestions.push("Com esse sol, que tal um piquenique ou uma caminhada em um parque?");
-        suggestions.push("A luz natural está incrível – perfeito para fotografar paisagens.");
-      }
-      if (desc.includes("neve")) {
-        suggestions.push("A neve cria um cenário mágico! Aproveite para tirar fotos e se divertir.");
-        suggestions.push("Prepare um chocolate quente e curta o visual gelado.");
-      }
-      if (desc.includes("ventoso")) {
-        suggestions.push("Dia ventoso! Uma boa oportunidade para esportes ao ar livre, como kitesurf, se você curtir aventuras.");
-      }
-      if (desc.includes("nevoeiro") || desc.includes("neblina")) {
-        suggestions.push("O nevoeiro traz um clima misterioso. Aproveite para contemplar a paisagem e refletir.");
-      }
-      if (suggestions.length === 0) {
-        suggestions.push("Aproveite o dia fazendo algo que você realmente goste!");
+        recommendations.push("A chuva é um convite para relaxar com um bom filme ou saborear uma bebida quente.");
+      } else if (desc.includes("nublado") || desc.includes("encoberto")) {
+        recommendations.push("O céu nublado sugere um momento para desfrutar de um café aconchegante acompanhado de uma boa leitura.");
+      } else if (desc.includes("ensolarado") || desc.includes("limpo") || desc.includes("céu claro")) {
+        recommendations.push("O sol radiante pede um passeio ao ar livre ou até mesmo um piquenique no parque.");
+      } else if (desc.includes("neve")) {
+        recommendations.push("A neve cria um cenário encantador – ótimo para um chocolate quente enquanto se aprecia a vista.");
+      } else if (desc.includes("ventoso")) {
+        recommendations.push("O vento traz uma energia especial, ideal para atividades ao ar livre.");
+      } else if (desc.includes("nevoeiro") || desc.includes("neblina")) {
+        recommendations.push("O mistério do nevoeiro inspira momentos de introspecção e criatividade.");
+      } else {
+        recommendations.push("Independentemente do cenário, tire um tempo para desfrutar o momento.");
       }
       
-      return suggestions.join(" ");
+      // Recomendações baseadas na temperatura
+      if (temp >= 30) {
+        recommendations.push("Com o calor intenso, mantenha-se bem hidratado e proteja-se do sol.");
+      } else if (temp <= 10) {
+        recommendations.push("No frio, abrace o conforto de um casaco aconchegante e uma bebida quentinha.");
+      } else {
+        recommendations.push("A temperatura está agradável para aproveitar bem o seu dia.");
+      }
+      
+      // Recomendações baseadas na umidade
+      if (humidity >= 80) {
+        recommendations.push("A alta umidade pode deixar o ar mais pesado; hidrate-se regularmente.");
+      } else if (humidity < 40) {
+        recommendations.push("Com um ar mais seco, lembre-se de hidratar-se bem e cuidar da pele.");
+      } else {
+        recommendations.push("A umidade está em um nível ideal para apreciar o clima.");
+      }
+      
+      return recommendations.join(" ");
     }
     
-    document.getElementById("getWeatherBtn").addEventListener("click", function() {
-      const city = document.getElementById("cityInput").value.trim();
-      if (!city) {
-        alert("Por favor, digite o nome de uma cidade!");
-        return;
-      }
-      
-      // API do OpenWeatherMap
-      const weatherApiKey = "87b42475468c3ba9298cf245b2fa9379";
-      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${weatherApiKey}&units=metric&lang=pt_br`;
-      
+    // Função para buscar dados do clima usando latitude e longitude
+    function getWeatherByCoords(lat, lon, cityName, state, country) {
+      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric&lang=pt_br`;
       fetch(weatherUrl)
         .then(response => response.json())
         .then(data => {
-          if (data.cod === "404" || data.cod === 404) {
-            document.getElementById("weatherData").innerHTML = "<p>Cidade não encontrada!</p>";
-            document.getElementById("iaWindow").style.display = "none";
-            return;
-          }
-          
-          // Extrai os dados do clima
-          const { name, main, weather } = data;
+          const { main, weather } = data;
           const weatherDescription = weather[0].description;
           const iconCode = weather[0].icon;
+          let fullCityName = cityName;
+          if (state) { fullCityName += ", " + state; }
+          if (country) { fullCityName += " (" + country + ")"; }
           
-          // Atualiza a exibição dos dados do clima
+          // Arredonda a temperatura atual
+          const roundedTemp = Math.round(main.temp);
+          
           const weatherHTML = `
-            <h2>${name}</h2>
-            <p><strong>Temperatura:</strong> ${main.temp}°C</p>
-            <p>
-              <strong>Mínima:</strong> ${main.temp_min}°C&nbsp;&nbsp;
-              <strong>Máxima:</strong> ${main.temp_max}°C
-            </p>
-            <p><strong>Condição:</strong> ${weatherDescription}</p>
+            <h2>${fullCityName}</h2>
             <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${weatherDescription}">
+            <p><strong>Temperatura:</strong> ${roundedTemp}°C</p>
+            <p><strong>Umidade:</strong> ${main.humidity}%</p>
           `;
           document.getElementById("weatherData").innerHTML = weatherHTML;
           
           // Atualiza a imagem de fundo via API Unsplash
-          const unsplashQuery = `${city}, ${weatherDescription}`;
+          const unsplashQuery = `${cityName}, ${weatherDescription}`;
           const unsplashAccessKey = "dIwIQ9IGF5cuaH8vbtm0iX__aVh1_Pw7XboiHOM4HSc";
           const unsplashUrl = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(unsplashQuery)}&orientation=landscape&client_id=${unsplashAccessKey}`;
-          
           fetch(unsplashUrl)
             .then(response => response.json())
             .then(unsplashData => {
               if (unsplashData.urls && unsplashData.urls.regular) {
-                const imageUrl = unsplashData.urls.regular;
-                document.body.style.backgroundImage = `url(${imageUrl})`;
+                document.body.style.backgroundImage = `url(${unsplashData.urls.regular})`;
               } else {
                 console.error("Imagem não encontrada no Unsplash.");
               }
@@ -252,13 +276,13 @@
               console.error("Erro na requisição à API do Unsplash:", error);
             });
           
-          // Calcula a sugestão e exibe a janela da IA
-          const suggestion = getSuggestions(weatherDescription);
-          document.getElementById("iaSuggestion").innerText = suggestion;
+          // Atualiza as recomendações da Mini IA
+          const recommendation = getRecommendations(weatherDescription, main.temp, main.humidity);
+          document.getElementById("iaSuggestion").innerText = recommendation;
           const iaWindow = document.getElementById("iaWindow");
           iaWindow.style.display = "block";
           
-          // Ajusta a posição vertical da janela IA para alinhar com o container do clima
+          // Alinha verticalmente a janela de Recomendações com o container do clima
           const containerRect = document.querySelector('.container').getBoundingClientRect();
           iaWindow.style.top = containerRect.top + "px";
         })
@@ -267,7 +291,57 @@
           document.getElementById("weatherData").innerHTML = "<p>Não foi possível recuperar os dados do clima.</p>";
           document.getElementById("iaWindow").style.display = "none";
         });
+    }
+    
+    // Evento ao clicar em "Buscar Clima"
+    document.getElementById("getWeatherBtn").addEventListener("click", function() {
+      const cityQuery = document.getElementById("cityInput").value.trim();
+      if (!cityQuery) {
+        alert("Por favor, digite o nome de uma cidade!");
+        return;
+      }
+      
+      // Limpa resultados anteriores
+      document.getElementById("weatherData").innerHTML = "";
+      document.getElementById("cityList").innerHTML = "";
+      
+      // Busca via API de geocodificação (até 5 resultados)
+      const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityQuery)}&limit=5&appid=${weatherApiKey}`;
+      fetch(geoUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length === 0) {
+            document.getElementById("weatherData").innerHTML = "<p>Cidade não encontrada!</p>";
+          } else if (data.length === 1) {
+            const cityObj = data[0];
+            getWeatherByCoords(cityObj.lat, cityObj.lon, cityObj.name, cityObj.state, cityObj.country);
+          } else {
+            // Se houver mais de uma opção, exibe os botões para seleção
+            let cityListHTML = "<p>Selecione a cidade correta:</p>";
+            data.forEach(cityObj => {
+              let displayName = cityObj.name;
+              if (cityObj.state) { 
+                displayName += ", " + cityObj.state;
+              }
+              if (cityObj.country) {
+                displayName += " (" + cityObj.country + ")";
+              }
+              cityListHTML += `<button class="city-option" onclick="selectCity(${cityObj.lat}, ${cityObj.lon}, '${cityObj.name.replace(/'/g, "\\'")}', '${cityObj.state ? cityObj.state.replace(/'/g, "\\'") : ""}', '${cityObj.country ? cityObj.country.replace(/'/g, "\\'") : ""}')">${displayName}</button>`;
+            });
+            document.getElementById("cityList").innerHTML = cityListHTML;
+          }
+        })
+        .catch(error => {
+          console.error("Erro ao buscar a cidade:", error);
+          document.getElementById("weatherData").innerHTML = "<p>Erro ao buscar a cidade.</p>";
+        });
     });
+    
+    // Função para tratar a seleção da cidade
+    function selectCity(lat, lon, cityName, state, country) {
+      document.getElementById("cityList").innerHTML = "";
+      getWeatherByCoords(lat, lon, cityName, state, country);
+    }
   </script>
 </body>
 </html>
