@@ -40,11 +40,9 @@ index.html: Contém o layout e a lógica da aplicação.
 Configuração e Execução
 Clone este repositório:
 
-sh
 git clone https://github.com/elias001011/ClimaAgora.git
 Navegue até o diretório do projeto:
 
-sh
 cd ClimaAgora
 Abra o arquivo index.html no seu navegador preferido.
 
